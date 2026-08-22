@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Assistant</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; line-height: 1.5; }
+        .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        button { background: #28a745; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
+        input[type="text"] { width: 70%; padding: 8px; }
+        #answer { background: #e9ecef; padding: 12px; border-radius: 4px; border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    <h2>PDF Question & Answer</h2>
+    
+    <div class="card">
+        <h3>1. Upload PDF</h3>
+        <input type="file" id="pdfFile" accept=".pdf">
+        <button onclick="uploadPDF()">Upload</button>
+        <p id="status"></p>
+    </div>
+
+    <div class="card">
+        <h3>2. Ask Question</h3>
+        <input type="text" id="userQuestion" placeholder="Ask about the PDF...">
+        <button onclick="askPDF()">Ask</button>
+    </div>
+
+    <div class="card">
+        <h3>Answer:</h3>
+        <div id="answer">Answers will appear here...</div>
+    </div>
+
+    <script>
+        async function uploadPDF() {
+            const file = document.getElementById('pdfFile').files[0];
+            if (!file) return alert("Select a PDF first");
+            const formData = new FormData();
+            formData.append("file", file);
+            document.getElementById('status').innerText = "Processing...";
+            const res = await fetch("http://127.0.0.1:8000/upload", { method: "POST", body: formData });
+            const data = await res.json();
+            document.getElementById('status').innerText = data.message;
+        }
+
+        async function askPDF() {
+            const question = document.getElementById('userQuestion').value;
+            if (!question) return alert("Type a question");
+            document.getElementById('answer').innerText = "Thinking...";
+            const formData = new FormData();
+            formData.append("question", question);
+            const res = await fetch("http://127.0.0.1:8000/ask", { method: "POST", body: formData });
+            const data = await res.json();
+            document.getElementById('answer').innerText = data.answer;
+        }
+    </script>
+</body>
+</html>
